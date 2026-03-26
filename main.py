@@ -5,7 +5,7 @@ import asyncio
 
 # --- إعدادات البوت (السويدة - النسخة الاحترافية v12.1 - Railway Edition) ---
 # ملاحظة: سيقوم البوت بقراءة التوكن من إعدادات الاستضافة (Variables) أو من الكود مباشرة
-TOKEN = os.getenv('DISCORD_TOKEN') or 'MTQ4NjU0MzcwNDM2MDYyMDIwNA.GPoWw5.a3TUQH2MtS_Rq28SamDvRgvHBQntLfTbBiUWw0'
+TOKEN = os.getenv('DISCORD_TOKEN') or 'MTQ4NjU0MzcwNDM2MDYyMDIwNA.GBF4Vu.QRVhEa8WMr5gvh9vizKWjOTT5NDizX0ouKY_3w'
 OWNER_ID = 802934285006143508
 LOG_CHANNEL_ID = 1482212827681787934
 PREFIX = '!'
