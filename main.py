@@ -3,8 +3,8 @@ from discord.ext import commands
 import os
 import asyncio
 
-# --- إعدادات البوت (السويدة - النسخة الاحترافية v12.1 - Railway Edition) ---
-# ملاحظة: سيقوم البوت بقراءة التوكن من إعدادات الاستضافة (Variables) أو من الكود مباشرة
+# --- إعدادات البوت (السويدة - النسخة النهائية v13 - الاستقرار التام) ---
+# ملاحظة: سيقوم البوت بقراءة التوكن من إعدادات الاستضافة (Variables) باسم DISCORD_TOKEN
 TOKEN = os.getenv('DISCORD_TOKEN')
 OWNER_ID = 802934285006143508
 LOG_CHANNEL_ID = 1482212827681787934
@@ -20,7 +20,7 @@ active_recordings = {}
 
 @bot.event
 async def on_ready():
-    print(f'--- [ السويدة أونلاين v12.1 - Railway ] ---')
+    print(f'--- [ السويدة أونلاين v13 - الاستقرار التام ] ---')
     print(f'تم تسجيل الدخول كـ: {bot.user.name}')
     print(f'آيدي البوت: {bot.user.id}')
     print(f'قناة السجلات: {LOG_CHANNEL_ID}')
@@ -75,23 +75,17 @@ async def تعال(ctx):
         return await ctx.send("البوت يسجل بالفعل في هذا السيرفر! ⚠️")
 
     try:
-        # 1. الاتصال بالروم
+        # 1. الاتصال بالروم (بشكل مباشر وبسيط)
         if ctx.voice_client:
             vc = ctx.voice_client
             await vc.move_to(channel)
         else:
-            vc = await channel.connect()
+            vc = await channel.connect(timeout=20.0, reconnect=True)
         
-        # 2. الانتظار حتى استقرار الاتصال (مهم جداً في Railway)
-        for i in range(10): # محاولة لمدة 10 ثوانٍ
-            if vc.is_connected():
-                break
-            await asyncio.sleep(1)
+        # 2. انتظار بسيط جداً لاستقرار الاتصال
+        await asyncio.sleep(2)
         
-        if not vc.is_connected():
-            return await ctx.send("فشل الاتصال بالروم الصوتي (تأخرت الاستجابة). يرجى المحاولة مرة أخرى. ❌")
-
-        # 3. بدء التسجيل تلقائياً
+        # 3. بدء التسجيل تلقائياً (تجاوز فحص الاتصال المعقد)
         sink = discord.sinks.MP3Sink()
         
         try:
@@ -100,7 +94,7 @@ async def تعال(ctx):
             await ctx.send(f"🔴 دخلت {channel.name} وبدأت التسجيل تلقائياً.. 🕵️‍♂️")
             print(f"بدأ التسجيل التلقائي في: {channel.name}")
         except Exception as e:
-            # محاولة ثانية في حال فشل الأولى
+            # محاولة ثانية في حال فشل الأولى (بسبب بطء الاستجابة)
             await asyncio.sleep(2)
             vc.start_recording(sink, finished_callback, ctx.channel)
             active_recordings[ctx.guild.id] = vc
@@ -116,10 +110,11 @@ async def وقف(ctx):
     if ctx.author.id != OWNER_ID: return
     
     vc = ctx.voice_client
-    if vc and vc.recording:
+    if vc:
         try:
-            vc.stop_recording()
-            await asyncio.sleep(1.5) # انتظار بسيط لضمان انتهاء الحفظ
+            if vc.recording:
+                vc.stop_recording()
+            await asyncio.sleep(2) # انتظار لضمان انتهاء الحفظ
             await vc.disconnect()
             if ctx.guild.id in active_recordings:
                 del active_recordings[ctx.guild.id]
